@@ -2,10 +2,8 @@
 	<meta charset="UTF-8">
 </html>
 <?php
-chdir( "/home/user1137761/www/chehov.akson.by" );
-require_once 'simplehtmldom/simple_html_dom.php';
-require_once 'app_config.php';
-require_once 'poster/VKclass.php';
+require_once '../app_config.php';
+require_once '../vk_auth/VKclass.php';
 /*$e->tag            Читает или записывает имя тега элемента.
 $e->outertext   Читает или записывает весь HTML элемента, включая его самого.
 $e->innertext   Читает или записывает внутренний HTML элемента
@@ -20,6 +18,7 @@ function searchUser(
 	or die( "<p>searchUser Невозможно сделать запрос поиска пользователя: "
 	        . mysql_error() . "</p>" );
 	$row = mysql_fetch_array( $res );//получение результата запроса из базы;
+	writeLog($query);
 	return $row;
 }
 
@@ -30,6 +29,7 @@ function addUser(
 	         "VALUES ('{$first_name}', '{$last_name}', '{$author_id}');";
 	$result = mysql_query( $query )
 	or die( "<p>Невозможно добавить пользователя " . mysql_error() . "</p>" );
+	writeLog($query);
 }
 
 function addComment(
@@ -54,10 +54,12 @@ function addComment(
 			$res = mysql_query( $query )
 			or die( "<p>Невозможно сделать запись комментария: " . mysql_error()
 			        . "</p>" );
+			writeLog($query);
 		} else {
 			$query = "UPDATE vk_comments SET comment_life='{$comment_life}' WHERE user_id='{$user_id}' AND id='{$maxID}';";
 			$res = mysql_query( $query ) or die( "<p>addComment Невозможно обновить время жизни комментария для пользователя $user_id: "
 	                                     . mysql_error() . "</p>" );
+			writeLog($query);
 		}
 	} else {
 		$query
@@ -65,11 +67,20 @@ function addComment(
 		$res = mysql_query( $query )
 		or die( "<p>Невозможно сделать запись комментария: " . mysql_error()
 		        . "</p>" );
+		writeLog($query);
 	}
 
 	return $res;
 }
-
+function addError(){
+	$currentDay=date("d.m.Y");
+	$currentTime = date( "H:i" );
+	$query = "INSERT INTO vk_errors (time, day) VALUES ('{$currentTime}', '{$currentDay}');";
+	$res = mysql_query( $query )
+	or die( "<p>commentStat Невозможно сделать запрос для анализа статистики: "
+	        . mysql_error() . "</p>" );
+	writeLog($query);
+}
 function getCommentsCount( $u_id ) {
 	$query = "SELECT * FROM vk_comments WHERE user_id='{$u_id}';";
 	$res = mysql_query( $query )
@@ -115,11 +126,12 @@ function commentStat($currentDay){
 					or die( "<p>getCommentsCountНевозможно сделать запрос для анализа статистика: "
 	        		. mysql_error() . "</p>" );
 			} else {
-				$query="INSERT INTO vk_comment_stat (comment_life_20, comment_life_30, comment_life_40, comment_life_50, day) 
+				$query="INSERT INTO vk_comment_stat (comment_life_20, comment_life_30, comment_life_40, comment_life_50, day)
 				VALUES ('0','0','0','0','{$currentDay}');";
 				$res = mysql_query( $query )
 					or die( "<p>getCommentsCountНевозможно сделать запрос для анализа статистики: "
 	        		. mysql_error() . "</p>" );
+				writeLog($query);
 	        	$query="UPDATE vk_comment_stat SET $fields[$i]='$rows_num' WHERE day='{$currentDay}';";
 				$res = mysql_query( $query )
 					or die( "<p>getCommentsCountНевозможно сделать запрос для анализа статистика: "
@@ -129,28 +141,42 @@ function commentStat($currentDay){
 
  	}
 }
-	function connect($dbhost, $dbusername, $dbpass, $db_name){
+
+function connect($dbhost, $dbusername, $dbpass, $db_name){
 	$dbconnect = mysql_connect( $dbhost, $dbusername, $dbpass )
 	or die( "<p>Ошибка подключения к базе данных: " . mysql_error() . "</p>" );
 	//говорим базе что записываем в нее все в utf8
 	mysql_query( "SET NAMES 'utf8';" );
 	mysql_query( "SET CHARACTER SET 'utf8';" );
 	mysql_query( "SET SESSION collation_connection = 'utf8_general_ci';" );
-	mysql_select_db( $db_name ) or die ( "<p>Невозможно выбрать базу: "
-	                                     . mysql_error() . "</p>" );
+	mysql_select_db( $db_name );
 	}
-	function wallComment($txt){
+function writeLog($log_string){
+	$filename = '../../../robot_log.txt';
+	$currentDate = date("d.m.Y");
+	$currentTime = date( "H:i" );
+	$log_string=$currentDate." ".$currentTime." ".$log_string."\n";
+	$handle = fopen($filename,'a');
+	//флаг а позволяет только
+	//записывать в файл помещая указатель на конeц строки
+	if(!$handle) exit;
+	if (is_writable($filename)) {
+		if (fwrite($handle, $log_string) === FALSE) exit;
+		fclose($handle);
+	}
+}
+function wallComment($txt, $group, $post){
 		$token = '92b73575a455b69bd32a54215038a3a74e7997d73923a364bd93790912b7f576c18b813f440348dfb5321&expires_in=0&user_id=152223765';
 		$delta = '100';
 		$app_id = '4832378';
-		$group_id = '43932139';//plantonics
-		$post_id='5970';//tank post
+		$group_id = $group;
+		$post_id=$post;
 		$phrases = array(
    		    "Долго","Хватит с тебя","это еще не все","Хорошая попытка)","Lol^^",
   		  	"OMG","Хачу галду!))","отдохните","ясно(","сорян((","лолки вы", "хмммм &#128529;",
 			"норм","нормас продержался)","ну ок...","хватит уже","слишком долго",
 			"идите отдыхать","и чего вам все неймется","так-то","эх", "и даже так..",
-			"все тут сидите","ну почти))", "хорош", "много минут", "хватит наверное", 
+			"все тут сидите","ну почти))", "хорош", "много минут", "хватит наверное",
 			"достаточно", "круто однако", "ну как вы тут?","однако, долго","Ап","UP",
 			"тутэ", "написал пост - пошел спать", "сделал дело и спать", "up", "norm",
 			"ага)", "угу...", "aga;)", "отдыхать идите))", "лал", "вы так не шутите",
@@ -165,7 +191,6 @@ function commentStat($currentDay){
 		$vk_online=$vk->setOnline(0);
 		$currentDay=date("d.m.Y");
 		$currentTime = date( "H:i" );
-		$query;
 		if($txt){//если задана строка- постим строку
 		 $vk_comment = $vk->addComment($txt, $post_id, NULL);
 		 $query = "INSERT INTO vk_answers (phrase, time, day) VALUES ('{$txt}', '{$currentTime}', '{$currentDay}');";
@@ -173,7 +198,7 @@ function commentStat($currentDay){
 		else {
 			if(rand(0, 3) == 3){
 			 $stckr=rand(97, 117);
-			 $vk_comment = $vk->addComment(NULL, $post_id, $stckr);//30% шанс запостить стикер 
+			 $vk_comment = $vk->addComment(NULL, $post_id, $stckr);//30% шанс запостить стикер
 			 $query="INSERT INTO vk_answers (phrase, time, day) VALUES ('{$stckr}', '{$currentTime}', '{$currentDay}');";
 			}
 			else{
@@ -200,104 +225,6 @@ function commentStat($currentDay){
 		$res = mysql_query( $query )
 			or die( "<p>commentStat Невозможно сделать добавление ответа в базу"
 	        . mysql_error() . "</p>" );
+		writeLog($query);
 	}
-
-$url  = "https://m.vk.com/wall-43932139_5970";
-$html = file_get_html( $url );
-if ( ! $html ) {
-	connect($dbhost, $dbusername, $dbpass, $db_name);
-	$currentDay=date("d.m.Y");
-	$currentTime = date( "H:i" );
-	$query = "INSERT INTO vk_errors (time, day) VALUES ('{$currentTime}', '{$currentDay}');";
-	$res = mysql_query( $query )
-			or die( "<p>commentStat Невозможно сделать запрос для анализа статистики: "
-	        . mysql_error() . "</p>" );
-}
-$fnd_author  = $html->find( 'a.pi_author' );//в масссиве вк всегда 51 коммент
-$fnd_comment = $html->find( 'div.pi_text' );
-
-$author = end( $fnd_author );
-if ( $author == "Официальное сообщество Plantronics" ) {
-		$message = "Message from admin";
-		mail( "pavel.felias@gmail.com", "Chat", $message );
-	}
-sscanf( $author, "<a class=\"pi_author\" href=\"/%s\">", $author_id );
-$author = trim( $author->innertext );
-sscanf( $author, "%s %s", $first_name, $last_name );
-echo "$first_name $last_name </br>";
-$author_id = substr( $author_id, 0, strpos( $author_id, "\">" ) );
-echo "<a href=\"https://vk.com/$author_id\">$author_id<a/></br>";
-
-$fnd          = $html->find( 'a.item_date' );
-$comment_time = end( $fnd );
-$comment_time = $comment_time->innertext;
-$comment_time = substr( $comment_time, 18 );
-echo "$comment_time ";
-
-sscanf( $comment_time, "%d:%d", $hour, $min );
-$minLastComm = $hour * 60 + $min;
-echo "$minLastComm </br>";//минуты последнего коммента
-
-$currentDay=date("d.m.Y");
-$currentDate = date( "H:i" );
-echo "$currentDate ";//текущее время
-
-sscanf( $currentDate, "%d:%d", $hour, $min );
-$currentMin = $hour * 60 + $min;
-echo "$currentMin</br>";
-$comment_life = $currentMin - $minLastComm;//разница в минутах
-echo "DIFF = $comment_life </br>";
-echo "<a href=\"https://m.vk.com/wall-43932139_5970?post_add#post_add\">ADD POST</a></br>";
-$html->clear();//очистка памяти от объекта
-unset( $html );
-
-if($comment_life<0 && $currentMin>=6 && $currentMin<=12 && $author_id != "id152223765"){
-	$arr = array( "Эх", "доброй ночи ребят", "хорошей ночки", "продуктивно посидеть",
-		"Доброй ночи", "спокойной", "эх...", "удачи неспящим", "все неспят", "все неспите)))",
-		"интересно, какой будет рекорд", "стерегите голду))", "наступает ночь", "у меня уже стемнело",
-		"&#128522;", "&#128515;", "&#128521;", "&#128540;", "&#128518;", "&#128527;", "всем спать &#128540;",
-		"стемнело на дворе..."
-		);
-	$txt=$arr[rand(0, sizeof($arr)-1)];
-
-	connect($dbhost, $dbusername, $dbpass, $db_name);
-	wallComment($txt);
-}
-
-//wallComment($res_str);
-if ( $comment_life >=20 ){
-	if (($comment_life >= 45+rand(0, 5)) && $comment_life < 65 && $author_id != "id152223765"){
-	 connect($dbhost, $dbusername, $dbpass, $db_name);
-	 wallComment(NULL);//самая важная функция
-	}
-
-	connect($dbhost, $dbusername, $dbpass, $db_name);
-	$row = searchUser( $author_id );
-	if ( $row ) {
-		$user_id = $row['id'];
-		if ( $user_id ) {
-			addComment( $user_id, $comment_life, $comment_time, $currentDay);
-		}
-		getCommentsCount( $user_id );
-	} else {
-		addUser( $first_name, $last_name, $author_id );
-		$row     = searchUser( $author_id );
-		$user_id = $row['id'];//получаем id вновь добавленного пользователя
-		addComment( $user_id, $comment_life, $comment_time, $currentDay );
-		getCommentsCount( $user_id );
-	}
-	commentStat($currentDay);
-}
-if( $comment_life >= 60 && $comment_life<65) {
-		$message = "winner is $first_name $last_name";
-		mail( "pavel.felias@gmail.com", "Winner", $message );
-		$sms = file_get_contents( "http://sms.ru/sms/send?api_id=b8646699-0b12-1c14-ad92-7ab16971b8a1&to=375259466591&text="
-				                     . urlencode( iconv( "windows-1251",
-					"utf-8",
-					"Winner is $first_name $last_name" ) ) );
-}
-
- connect($dbhost, $dbusername, $dbpass, $db_name);
- $n=getCommentNum($author_id);
- if($n) echo "LONG = $n";
 ?>

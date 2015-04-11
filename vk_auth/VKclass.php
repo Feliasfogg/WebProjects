@@ -30,6 +30,37 @@ class vk {
 		}
 		return 0;
 	}
+	public function addComment( $desc, $post_id, $sticker) {
+			$data = json_decode(
+				$this->execute(
+					'wall.addComment',
+					array(
+						'owner_id' => -$this->group_id,
+						'from_group' => 0,
+						'text' => $desc,
+						'post_id'=>$post_id,
+						'sticker_id'=>$sticker
+					)
+				)
+			);
+			if( isset( $data->error ) ) {
+				return $this->error( $data );
+			}
+			return $data->response->comment_id;
+	}
+	public function setOnline($voip) {
+			$data = json_decode(
+				$this->execute(
+					'account.setOnline',
+					array(
+					)
+				)
+			);
+			if( isset( $data->error ) ) {
+				return $this->error( $data );
+			}
+			return 1;
+	}
 	public function create_album( $name, $desc ) {
 		$data = json_decode(
 			$this->execute(
