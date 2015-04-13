@@ -152,10 +152,11 @@ function connect($dbhost, $dbusername, $dbpass, $db_name){
 	mysql_select_db( $db_name );
 	}
 function writeLog($log_string){
-	$filename = '../../../robot_log.txt';
+	$filename = '../../robot_log.txt';
 	$currentDate = date("d.m.Y");
 	$currentTime = date( "H:i" );
-	$log_string=$currentDate." ".$currentTime." ".$log_string."\n";
+	if($log_string) $log_string=$currentDate." ".$currentTime." ".$log_string."\n";
+	else $log_string=$currentDate." ".$currentTime." "."start script\n";
 	$handle = fopen($filename,'a');
 	//флаг а позволяет только
 	//записывать в файл помещая указатель на конeц строки
