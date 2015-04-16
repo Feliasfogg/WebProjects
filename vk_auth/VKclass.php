@@ -61,6 +61,42 @@ class vk {
 			}
 			return 1;
 	}
+	public function getPosts($filter, $count){
+		//фильтр - определяет какие записи выбрать, например от имени сообщества
+		//count - определяет кол-во записей котоыре необходимо выбрать
+		$data = json_decode(
+				$this->execute(
+					'wall.get',
+					array(
+						'owner_id' => -$this->group_id,
+						'owner' => $filter,
+						'count' =>$count
+					)
+				)
+			);
+		if( isset( $data->error ) ) {
+				return $this->error( $data );
+			}
+			return $data->response;
+	}
+	public function searchPost($query, $count){
+		//query-поисковый запрос - строка
+		$data = json_decode(
+			$this->execute(
+				'wall.search',
+				array(
+					'owner_id' => -$this->group_id,
+					'owners_only' => 1,//возвр только записи владельца стены
+					'count' =>$count,
+					'query'=>$query//колво запросов
+				)
+			)
+		);
+		if( isset( $data->error ) ) {
+			return $this->error( $data );
+		}
+		return $data->response;
+	}
 	public function create_album( $name, $desc ) {
 		$data = json_decode(
 			$this->execute(

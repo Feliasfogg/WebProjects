@@ -5,7 +5,7 @@
 </html>
 <?php
 require_once '../app_config.php';
-require_once 'VKclass.php';
+require_once '../vk_auth/VKclass.php';
 
 ini_set( 'display_errors', 'Off' );
 function connect( $dbhost, $dbusername, $dbpass, $db_name ) {
