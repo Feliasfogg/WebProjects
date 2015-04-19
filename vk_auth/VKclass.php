@@ -8,7 +8,7 @@ class vk {
 		$this->token = $token;
 		$this->delta = $delta;
 		$this->app_id = $app_id;
-		$this->group_id = $group_id;
+		$this->group_id = -$group_id;
 	}
 	public function post( $desc, $photo, $link ) {
 		if( rand( 0, 99 ) < $this->delta ) {
@@ -16,7 +16,7 @@ class vk {
 				$this->execute(
 					'wall.post',
 					array(
-						'owner_id' => -$this->group_id,
+						'owner_id' => $this->group_id,
 						'from_group' => 1,
 						'message' => $desc,
 						'attachments' => 'photo-' . $this->group_id . '_' . $photo . ',' . $link
@@ -30,12 +30,46 @@ class vk {
 		}
 		return 0;
 	}
+	public function getOneUser($user_id){
+		$data = json_decode(
+			$this->execute(
+				'users.get',
+				array(
+					'user_ids' => $user_id,
+					'name_case'=>'nom'
+				)
+			)
+		);
+		if( isset( $data->error ) ) {
+			return $this->error( $data );
+		}
+		return $data->response;
+	}
+	public function getComments($post_id, $count, $sort){
+		$data = json_decode(
+			$this->execute(
+				'wall.getComments',
+				array(
+					'owner_id' => $this->group_id,
+					'post_id'=>$post_id,
+					'need_likes'=>0,
+					'count'=>$count,
+					'sort'=>$sort,//asc — от старых к новым, desc - от новых к старым)
+					'preview_length'=>0
+				)
+			)
+		);
+		if( isset( $data->error ) ) {
+			return $this->error( $data );
+		}
+		return $data->response;
+	}
 	public function addComment( $desc, $post_id, $sticker) {
 			$data = json_decode(
 				$this->execute(
 					'wall.addComment',
 					array(
-						'owner_id' => -$this->group_id,
+						'owner_id' => $this->group_id,
 						'from_group' => 0,
 						'text' => $desc,
 						'post_id'=>$post_id,
@@ -46,13 +80,14 @@ class vk {
 			if( isset( $data->error ) ) {
 				return $this->error( $data );
 			}
-			return $data->response->comment_id;
+			return $data->response;
 	}
-	public function setOnline($voip) {
+	public function setOnline() {
 			$data = json_decode(
 				$this->execute(
 					'account.setOnline',
 					array(
+						'voip'=>0
 					)
 				)
 			);
@@ -68,7 +103,7 @@ class vk {
 				$this->execute(
 					'wall.get',
 					array(
-						'owner_id' => -$this->group_id,
+						'owner_id' => $this->group_id,
 						'owner' => $filter,
 						'count' =>$count
 					)
@@ -85,7 +120,7 @@ class vk {
 			$this->execute(
 				'wall.search',
 				array(
-					'owner_id' => -$this->group_id,
+					'owner_id' => $this->group_id,
 					'owners_only' => 1,//возвр только записи владельца стены
 					'count' =>$count,
 					'query'=>$query//колво запросов
@@ -96,6 +131,37 @@ class vk {
 			return $this->error( $data );
 		}
 		return $data->response;
+	}
+	public function editPost($post_id, $message){
+		$data = json_decode(
+			$this->execute(
+				'wall.edit',
+				array(
+					'owner_id' => $this->group_id,
+					'post_id'=>$post_id,
+					'message'=>$message
+				)
+			)
+		);
+		if( isset( $data->error ) ) {
+			return $this->error( $data );
+		}
+		return 1;
+	}
+	public function deletePost($post_id){
+		$data = json_decode(
+			$this->execute(
+				'wall.delete',
+				array(
+					'owner_id' => $this->group_id,
+					'post_id'=>$post_id
+				)
+			)
+		);
+		if( isset( $data->error ) ) {
+			return $this->error( $data );
+		}
+		return 1;
 	}
 	public function create_album( $name, $desc ) {
 		$data = json_decode(
@@ -120,7 +186,7 @@ class vk {
 			$this->execute(
 				'photos.getAlbums',
 				array(
-					'oid' => -$this->group_id,
+					'oid' => $this->group_id,
 					'aids' => $id
 				)
 			)
