@@ -36,6 +36,7 @@ class vk {
 				'users.get',
 				array(
 					'user_ids' => $user_id,
+					'fields'=>"photo_50",
 					'name_case'=>'nom'
 				)
 			)
@@ -56,6 +57,21 @@ class vk {
 					'count'=>$count,
 					'sort'=>$sort,//asc — от старых к новым, desc - от новых к старым)
 					'preview_length'=>0
+				)
+			)
+		);
+		if( isset( $data->error ) ) {
+			return $this->error( $data );
+		}
+		return $data->response;
+	}
+	public function getRepost($object_str, $group_id){
+		$data = json_decode(
+			$this->execute(
+				'wall.repost',
+				array(
+					'object' => $object_str,
+					'group_id'=>$group_id
 				)
 			)
 		);
@@ -104,7 +120,7 @@ class vk {
 					'wall.get',
 					array(
 						'owner_id' => $this->group_id,
-						'owner' => $filter,
+						'filter' => $filter,
 						'count' =>$count
 					)
 				)

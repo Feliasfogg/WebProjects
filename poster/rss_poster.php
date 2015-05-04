@@ -8,35 +8,8 @@ require_once '../app_config.php';
 require_once '../vk_auth/VKclass.php';
 
 ini_set( 'display_errors', 'Off' );
-function connect( $dbhost, $dbusername, $dbpass, $db_name ) {
-	$dbconnect = mysql_connect( $dbhost, $dbusername, $dbpass )
-	or die( "<p>Ошибка подключения к базе данных: " . mysql_error() . "</p>" );
-	mysql_query( "SET NAMES 'utf8';" );
-	mysql_query( "SET CHARACTER SET 'utf8';" );
-	mysql_query( "SET SESSION collation_connection = 'utf8_general_ci';" );
-	mysql_select_db( $db_name ) or die ( "<p>Невозможно выбрать базу: "
-	                                     . mysql_error() . "</p>" );
-}
-
-function searchArticle( $link ) {
-	$query = "SELECT * FROM Articles WHERE link='{$link}';";
-	$res = mysql_query( $query )
-	or die( "<p>searchUser Невозможно сделать запрос поиска новости: "
-	        . mysql_error() . "</p>" );
-	$row = mysql_fetch_array( $res );//получение результата запроса из базы;
-	return $row;
-}
-
-function addArticle( $title, $link ) {//добавление новости
-	$query
-		= "INSERT INTO Articles (title, link) VALUES ('{$title}', '{$link}');";
-	$result = mysql_query( $query )
-	or die( "<p>Невозможно добавить новость " . mysql_error() . "</p>" );
-}
-
 //инациализация вк
-$token
-	      = '92b73575a455b69bd32a54215038a3a74e7997d73923a364bd93790912b7f576c18b813f440348dfb5321&expires_in=0&user_id=152223765';
+$token    = '92b73575a455b69bd32a54215038a3a74e7997d73923a364bd93790912b7f576c18b813f440348dfb5321&expires_in=0&user_id=152223765';
 $delta    = '100';
 $app_id   = '4832378';
 $group_id = '85303665';
@@ -46,16 +19,23 @@ $rss_url = "http://www.bsmu.by/rss/rss.xml";
 $rss     = simplexml_load_file( $rss_url );
 $items   = $rss->channel->item;
 
-connect( $dbhost, $dbusername, $dbpass, $db_name );
-if ( sizeof( $items ) ) {
+$filter="owner"; $count=sizeof($items)*4;
+//получаем последние 32 поста со стенки
+$posts = $vk->getPosts($filter, $count);
+
+if ( sizeof($items) ) {
 	foreach ( $items as $item ) {
-		$news_title = $item->title;
-		$news_link  = $item->link;
-		$res        = searchArticle( $news_link );
-		if ( $res[0] == null ) {
-			addArticle( $news_title, $news_link );
-			$vk_post = $vk->post( null, null, $news_link );
+		$flag=1;//флаг разрешения дла отправки поста
+		for($i=1; $i<sizeof($posts); ++$i){
+			if($posts[$i]->media->share_url == $item->link){
+				//проверка, если изменили название статьи, но ссылка осталась той же
+				//удаляем текущий пост и делаем новый с той же ссылкой
+				if($posts[$i]->text!=$item->title) $vk->deletePost($posts[$i]->id);
+				else $flag=0;
+				break;
+			}
 		}
+		if($flag) $vk->post(null, null, $item->link);
 	}
 }
 ?>

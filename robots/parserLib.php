@@ -152,7 +152,7 @@ function connect($dbhost, $dbusername, $dbpass, $db_name){
 	mysql_select_db( $db_name );
 	}
 function writeLog($log_string){
-	$filename = '../../robot_log.txt';
+	$filename = '../robot_log.txt';
 	$currentDate = date("d.m.Y");
 	$currentTime = date( "H:i" );
 	if($log_string) $log_string=$currentDate." ".$currentTime." ".$log_string."\n";
