@@ -18,8 +18,7 @@ $vk       = new vk( $token, $delta, $app_id, $group_id );
 $rss_url = "http://www.bsmu.by/rss/rss.xml";
 $rss     = simplexml_load_file( $rss_url );
 $items   = $rss->channel->item;
-
-$filter="owner"; $count=sizeof($items)*4;
+$filter="owner"; $count=sizeof($items)*2;
 //получаем последние 32 поста со стенки
 $posts = $vk->getPosts($filter, $count);
 
@@ -35,7 +34,7 @@ if ( sizeof($items) ) {
 				break;
 			}
 		}
-		if($flag) $vk->post(null, null, $item->link);
+		if($flag) echo $item->link;//$vk->post(null, null, $item->link);
 	}
 }
 ?>

@@ -25,16 +25,16 @@ function addArticle( $post_id, $link) {//добавление новости
 
 $vk_plantr =new vk($token, $delta, $app_id, $plantronics);
 
-$plantr_posts=$vk_plantr->searchPost('конкурс', 3);
+$plantr_posts=$vk_plantr->searchPost('World of Tanks', 3);
 if(sizeof($plantr_posts)){
 	//оповещалка о новом конкурсе в плантрониксе
 	connect($dbhost, $dbusername, $dbpass, $db_name);
 	for($i=1; $i<sizeof($plantr_posts); ++$i){
 		$res=searchArticle($plantr_posts[$i]->id);
 		if ( !$res ) {
-			$link="http://vk.com/club".$plantronics."_".$plantr_posts[$i]->id;
+			$link="http://vk.com/wall-".$plantronics."_".$plantr_posts[$i]->id;
 			addArticle( $plantr_posts[$i]->id, $link);
-			mail( "good-1991@mail.ru", "Конкурс", "Новый конкурс" );
+			mail( "good-1991@mail.ru", "Конкурс", "Возможно, конкурс" );
 		}
 	}
 }

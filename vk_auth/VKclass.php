@@ -65,6 +65,11 @@ class vk {
 		}
 		return $data->response;
 	}
+	public function getLastComment($post_id, $count, $sort){
+			$comments=$this->getComments($post_id, $count, $sort);
+			if(!$comments) return false;
+			else return $comments[1];
+		}
 	public function getRepost($object_str, $group_id){
 		$data = json_decode(
 			$this->execute(

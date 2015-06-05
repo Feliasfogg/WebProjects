@@ -1,4 +1,16 @@
 <?php
+function delete_archive($pathdir){//очищает старые бэкапы
+    $files=scandir($pathdir);
+    if(sizeof($files)<33) return;
+    $dir=opendir($pathdir);
+    while($filename=readdir($dir)){
+        if(is_file($pathdir.$filename) && $filename!="." && $filename!=".."){
+        $filetime=filectime($pathdir.$filename);//filectime-дата последней модификацц индексного дескриптора файла
+        $time_difference=time()-$filetime;
+        if($time_difference>24*3600*31) unlink($pathdir.$filename);
+        }
+    }
+}
 function add_folder($pathdir, $zip){
 	global $len;
 	$current_folder=substr($pathdir, $len);
@@ -41,8 +53,10 @@ function make_archive($pathdir, $nameArchive, $zip){
     }
 }
  $zip = new ZipArchive; // класс для работы с архивами
- $name="../archives/".date("d.m.y")." "."bsmu.akson.by.zip";
- $path='../../bsmu.akson.by/';
- $len=strlen($path);
- make_archive($path, $name, $zip);
+ $name="../../../_archives/".date("d.m.y")." "."bsmu.akson.by.zip";
+ $pathdir='../../bsmu.akson.by/';
+ $archive_dir="../../../_archives/";
+ $len=strlen($pathdir);
+ make_archive($pathdir, $name, $zip);
+ delete_archive($archive_dir);
 ?>

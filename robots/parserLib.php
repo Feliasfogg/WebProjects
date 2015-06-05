@@ -18,7 +18,7 @@ function searchUser(
 	or die( "<p>searchUser Невозможно сделать запрос поиска пользователя: "
 	        . mysql_error() . "</p>" );
 	$row = mysql_fetch_array( $res );//получение результата запроса из базы;
-	writeLog($query);
+	writeLog($query, NULL);
 	return $row;
 }
 
@@ -29,7 +29,7 @@ function addUser(
 	         "VALUES ('{$first_name}', '{$last_name}', '{$author_id}');";
 	$result = mysql_query( $query )
 	or die( "<p>Невозможно добавить пользователя " . mysql_error() . "</p>" );
-	writeLog($query);
+	writeLog($query, NULL);
 }
 
 function addComment(
@@ -54,12 +54,12 @@ function addComment(
 			$res = mysql_query( $query )
 			or die( "<p>Невозможно сделать запись комментария: " . mysql_error()
 			        . "</p>" );
-			writeLog($query);
+			writeLog($query, NULL);
 		} else {
 			$query = "UPDATE vk_comments SET comment_life='{$comment_life}' WHERE user_id='{$user_id}' AND id='{$maxID}';";
 			$res = mysql_query( $query ) or die( "<p>addComment Невозможно обновить время жизни комментария для пользователя $user_id: "
 	                                     . mysql_error() . "</p>" );
-			writeLog($query);
+			writeLog($query, NULL);
 		}
 	} else {
 		$query
@@ -67,7 +67,7 @@ function addComment(
 		$res = mysql_query( $query )
 		or die( "<p>Невозможно сделать запись комментария: " . mysql_error()
 		        . "</p>" );
-		writeLog($query);
+		writeLog($query, NULL);
 	}
 
 	return $res;
@@ -79,7 +79,7 @@ function addError(){
 	$res = mysql_query( $query )
 	or die( "<p>commentStat Невозможно сделать запрос для анализа статистики: "
 	        . mysql_error() . "</p>" );
-	writeLog($query);
+	writeLog($query, NULL);
 }
 function getCommentsCount( $u_id ) {
 	$query = "SELECT * FROM vk_comments WHERE user_id='{$u_id}';";
@@ -131,7 +131,7 @@ function commentStat($currentDay){
 				$res = mysql_query( $query )
 					or die( "<p>getCommentsCountНевозможно сделать запрос для анализа статистики: "
 	        		. mysql_error() . "</p>" );
-				writeLog($query);
+				writeLog($query, NULL);
 	        	$query="UPDATE vk_comment_stat SET $fields[$i]='$rows_num' WHERE day='{$currentDay}';";
 				$res = mysql_query( $query )
 					or die( "<p>getCommentsCountНевозможно сделать запрос для анализа статистика: "
@@ -151,8 +151,8 @@ function connect($dbhost, $dbusername, $dbpass, $db_name){
 	mysql_query( "SET SESSION collation_connection = 'utf8_general_ci';" );
 	mysql_select_db( $db_name );
 	}
-function writeLog($log_string){
-	$filename = '../robot_log.txt';
+function writeLog($log_string, $filename){
+	if(!$filename) $filename = '../robot_log.txt';
 	$currentDate = date("d.m.Y");
 	$currentTime = date( "H:i" );
 	if($log_string) $log_string=$currentDate." ".$currentTime." ".$log_string."\n";
@@ -226,6 +226,6 @@ function wallComment($txt, $group, $post){
 		$res = mysql_query( $query )
 			or die( "<p>commentStat Невозможно сделать добавление ответа в базу"
 	        . mysql_error() . "</p>" );
-		writeLog($query);
+		writeLog($query, NULL);
 	}
 ?>
