@@ -35,15 +35,12 @@ for($i=1; $i<sizeof($comments)-1;++$i){
 				$user=$vk->getOneUser($comments[$i+$j]->from_id);
 				$date = date('H:i', $comments[$i+$j]->date);
 				writeLog("$user->first_name $user->last_name id$user->uid date: $date "."text: ".$comments[$i+$j]->text, $users_log);
-				}
 			}
 		}
 	}
-if(!$last_num){
-	(int) $last_num=(int) $comments[1]->text;
-	if($last_num!=0) --$last_num;
-	else $last_num=false;
 }
+if(!$last_num) (int) $last_num = (int) $comments[1]->text;
+
 if(rand(0, 100) == 1 && $comments[1]->from_id != '152223765' && $last_num > 0 && $last_num < 25000) {
 	if($vk->setOnline()) writeLog('set online', $log_file);
 	else writeLog('cant set online', $log_file);
