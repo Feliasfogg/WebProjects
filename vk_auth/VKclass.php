@@ -44,7 +44,7 @@ class vk {
 		if( isset( $data->error ) ) {
 			return $this->error( $data );
 		}
-		return $data->response;
+		return $data->response[0];
 	}
 	public function getComments($post_id, $count, $sort){
 		$data = json_decode(

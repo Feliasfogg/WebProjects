@@ -19,6 +19,7 @@ $post_id='29045';
 $group_id = '43932139';
 $post_string='wall-43932139_29045';
 $log_file='../tank_log.txt';
+$users_log='../users_log.txt';
 $last_num=false;
 $vk = new vk( $token, $delta, $app_id, $group_id );
 
@@ -28,7 +29,14 @@ for($i=1; $i<sizeof($comments)-1;++$i){
 	(int) $comment1=(int) $comments[$i]->text;
 	(int) $comment2=(int) $comments[$i+1]->text;
 	if($comment1 && $comment2) {
-		if(($comment2-$comment1)!=1) $comment2>$comment1?$last_num=$comment2:$last_num=$comment1;
+		if(($comment2-$comment1)!=1){
+			$comment2>$comment1?$last_num=$comment2:$last_num=$comment1;
+			for($j=0; $j < 2; ++$j){
+				$user=$vk->getOneUser($comments[$i+$j]->from_id);
+				$date = date('H:i', $comments[$i+$j]->date);
+				writeLog("$user->first_name $user->last_name id$user->uid date: $date "."text: ".$comments[$i+$j]->text, $users_log);
+				}
+			}
 		}
 	}
 if(!$last_num){
