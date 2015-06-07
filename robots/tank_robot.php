@@ -22,32 +22,25 @@ $log_file='../tank_log.txt';
 $last_num=false;
 $vk = new vk( $token, $delta, $app_id, $group_id );
 
-writeLog('start script', $log_file);
-$comments=$vk->getComments($post_id, 10, 'desc');
+writeLog('start', $log_file);
+$comments=$vk->getComments($post_id, 2, 'desc');
 for($i=1; $i<sizeof($comments)-1;++$i){
-	$temp1=$comments[$i]->text;
-	$temp2=$comments[$i+1]->text;
-	--$temp1; --$temp2;
-	if($temp1!=-1 && $temp2!=-1) {
-		++ $temp1;
-		++ $temp2;
-		if ( ( $temp2 - $temp1 ) != 1 ) {
-			$last_num = $temp2;
+	(int) $comment1=(int) $comments[$i]->text;
+	(int) $comment2=(int) $comments[$i+1]->text;
+	if($comment1 && $comment2) {
+		if(($comment2-$comment1)!=1) $comment2>$comment1?$last_num=$comment2:$last_num=$comment1;
 		}
 	}
-}
-
 if(!$last_num){
-	$last_num=$comments[1]->text;
-	--$last_num;
-	if($last_num!=-1) ++$last_num;
+	(int) $last_num=(int) $comments[1]->text;
+	if($last_num!=0) --$last_num;
 	else $last_num=false;
 }
-
-if($comments[1]->from_id != '152223765' && $last_num > 0 && $last_num < 82) {
+if(rand(0, 100) == 1 && $comments[1]->from_id != '152223765' && $last_num > 0 && $last_num < 25000) {
 	if($vk->setOnline()) writeLog('set online', $log_file);
 	else writeLog('cant set online', $log_file);
-	for($i=0; $i < 2; ++$i){
+	$count=rand(1,2);//определяет вероятность запостить 2 или 1 пост
+	for($i=0; $i < $count; ++$i){
 		if($last_num > 0) {
 			-- $last_num;
 			if ( $vk_comment = $vk->addComment( $last_num, $post_id, null ) ) {
@@ -57,12 +50,11 @@ if($comments[1]->from_id != '152223765' && $last_num > 0 && $last_num < 82) {
 			}
 		}
 	}
-	if($last_num < 25)	mail( "good-1991@mail.ru", 'Танки!!!', $message );
 }
-
-if($last_num > 0 && $last_num <= 10){
-	if($vk->getRepost($post_string, NULL)) writeLog("get repost from $post_string");
+if($last_num > 0 && $last_num < 45) mail( "good-1991@mail.ru", 'Танки!!!', $message );
+if($last_num > 20 && $last_num < 35){
+	if($vk->getRepost($post_string, NULL)) writeLog("get repost from $post_string", $log_file);
 }
 //screen(NULL);
-writeLog('stop script', $log_file);
+writeLog('stop', $log_file);
 ?>

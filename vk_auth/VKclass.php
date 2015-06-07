@@ -65,8 +65,8 @@ class vk {
 		}
 		return $data->response;
 	}
-	public function getLastComment($post_id, $count, $sort){
-			$comments=$this->getComments($post_id, $count, $sort);
+	public function getLastComment($post_id){
+			$comments=$this->getComments($post_id, 1, 'desc');
 			if(!$comments) return false;
 			else return $comments[1];
 		}
