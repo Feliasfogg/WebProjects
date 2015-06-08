@@ -24,7 +24,7 @@ $last_num=false;
 $vk = new vk( $token, $delta, $app_id, $group_id );
 
 writeLog('start', $log_file);
-$comments=$vk->getComments($post_id, 2, 'desc');
+$comments=$vk->getComments($post_id, 4,'desc');
 for($i=1; $i<sizeof($comments)-1;++$i){
 	(int) $comment1=(int) $comments[$i]->text;
 	(int) $comment2=(int) $comments[$i+1]->text;
