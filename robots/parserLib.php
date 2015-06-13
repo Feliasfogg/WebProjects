@@ -154,7 +154,7 @@ function connect($dbhost, $dbusername, $dbpass, $db_name){
 function writeLog($log_string, $filename){
 	if(!$filename) $filename = '../robot_log.txt';
 	$currentDate = date("d.m.Y");
-	$currentTime = date( "H:i" );
+	$currentTime = date( "H:i:s" );
 	if($log_string) $log_string=$currentDate." ".$currentTime." ".$log_string."\n";
 	else $log_string=$currentDate." ".$currentTime." "."start script\n";
 	$handle = fopen($filename,'a');
