@@ -10,7 +10,10 @@ function screen($url)
     $str = file_get_contents($url);
     file_put_contents("../"."screen.jpeg", $str); // тут лучше указать путь куда сохранять
 }
-
+function sendMail($mail, $message, $log_file){
+	mail( $mail, "Танки!!!", $message );
+	writeLog( "send email $mail", $log_file );
+}
 $token
 	= "92b73575a455b69bd32a54215038a3a74e7997d73923a364bd93790912b7f576c18b813f440348dfb5321&expires_in=0&user_id=152223765";
 $delta    = "100";
@@ -29,6 +32,11 @@ for($k=2; $k<10; ++$k){
 	for($i=1; $i<sizeof($comments)-1;++$i){
 		(int) $comment1=(int) $comments[$i]->text;
 		(int) $comment2=(int) $comments[$i+1]->text;
+
+		$user1=$vk->getOneUser($comments[$i]->from_id);
+		$user2=$vk->getOneUser($comments[$i+1]->from_id);
+		if($user1->uid == "43932139" || $user2 == "43932139") sendMail("good-1991@mail.ru", "Танки", $log_file);
+
 		if($comment1 && $comment2) {//блок запустится, если оба комментария являются числами
 			if(($comment2-$comment1)!=1){//если два числа отличаются более чем на единицу, выбираем большее из них
 				$comment2>$comment1?$last_num=$comment2:$last_num=$comment1;
@@ -64,11 +72,7 @@ if(rand(0, 99) < 10 && $comments[1]->from_id != "152223765" && $last_num > 0 && 
 		}
 	}
 }
-if($last_num > 0 && $last_num < 45) {
-	$mail="good-1991@mail.ru";
-	mail( $mail, "Танки!!!", $message );
-	writeLog( "send email $mail", $log_file );
-}
+if($last_num > 0 && $last_num < 45) sendMail("good-1991@mail.ru", "Танки", $log_file);
 if($last_num > 20 && $last_num < 30){
 	if($vk->getRepost($post_string, null)) writeLog("get repost from vk.com/$post_string", $log_file);
 	else writeLog("cant repost from vk.com/$post_string", $log_file);
