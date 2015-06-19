@@ -51,7 +51,7 @@ for($k=2; $k<10; ++$k){
 	if($last_num) break;//если нашли число - выходим из внешнего цикла
 	//иначе - берем массив из уже 3,4,5,6 комментариев до тех пор пока не дойдем до числа
 }
-
+writeLog("last_num = $last_num", $log_file);
 if(rand(0, 99) < 10 && $comments[1]->from_id != "152223765" && $last_num > 0 && $last_num < 25000) {
 	if($vk->setOnline()) writeLog("set online", $log_file);
 	else writeLog("cant set online", $log_file);
@@ -64,7 +64,11 @@ if(rand(0, 99) < 10 && $comments[1]->from_id != "152223765" && $last_num > 0 && 
 		}
 	}
 }
-if($last_num > 0 && $last_num < 45) mail( "good-1991@mail.ru", "Танки!!!", $message );
+if($last_num > 0 && $last_num < 45) {
+	$mail="good-1991@mail.ru";
+	mail( $mail, "Танки!!!", $message );
+	writeLog( "send email $mail", $log_file );
+}
 if($last_num > 20 && $last_num < 30){
 	if($vk->getRepost($post_string, null)) writeLog("get repost from vk.com/$post_string", $log_file);
 	else writeLog("cant repost from vk.com/$post_string", $log_file);
