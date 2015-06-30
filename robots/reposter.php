@@ -35,8 +35,9 @@ $postsArray = array(
 	'lumix'=>new Post('https://vk.com/wall-62124383_2215', mktime(0, 0, 0, 6, 26, 2015)),
 	'strikalo'=>new Post('https://vk.com/wall-57422635_31725', mktime(0,0,0,6,26,2015))
 	);
+
 foreach ($postsArray as $post){
-	if($post->getDate() <= $currentTime){
+	if($post->getDate() < $currentDate){
 		//echo (date("d.m.Y", $post->getDate()))."</br>";
 
 		sleep(5);
