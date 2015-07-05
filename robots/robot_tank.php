@@ -3,6 +3,7 @@
 </html>
 <?php
 require_once "parserLib.php";
+require_once "../app_config.php";
 function screen($url) 
 {
     //$url = "http://api.s-shot.ru/".$extn."/".$size."/".$format."/?".urlencode($url);
@@ -11,8 +12,6 @@ function screen($url)
     file_put_contents("../"."screen.jpeg", $str); // тут лучше указать путь куда сохранять
 }
 
-$token
-	= "92b73575a455b69bd32a54215038a3a74e7997d73923a364bd93790912b7f576c18b813f440348dfb5321&expires_in=0&user_id=152223765";
 $delta    = "100";
 $app_id   = "4832378";
 $post_id="29045";
