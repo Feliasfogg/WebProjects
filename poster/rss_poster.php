@@ -9,8 +9,10 @@ require_once '../vk_auth/VKclass.php';
 
 ini_set( 'display_errors', 'Off' );
 //инациализация вк
+$token="c76ae506cd10e151a03b47f0ca8160552cb64ac8799bfddeecebd44674b4175ff25323df2933c530470fb&expires_in=0&user_id=152223765";
+//$token="6727f0401cfebd9eb31265a67e4b695121e7b0eb8490ed30fee1f8bb0167af73268fbf72df21a56c45496";
 $delta    = '100';
-$app_id   = '4832378';
+$app_id   = '48323781';
 $group_id = '85303665';
 $vk       = new vk( $token, $delta, $app_id, $group_id );
 
@@ -33,7 +35,7 @@ if ( sizeof($items) ) {
 				break;
 			}
 		}
-		if($flag) echo $item->link;//$vk->post(null, null, $item->link);
+		if($flag) $vk->post(null, null, $item->link);
 	}
 }
 ?>

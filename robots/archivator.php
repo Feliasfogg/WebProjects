@@ -53,8 +53,8 @@ function make_archive($pathdir, $nameArchive, $zip){
     }
 }
  $zip = new ZipArchive; // класс для работы с архивами
- $name="../../../_archives/".date("d.m.y")." "."bsmu.akson.by.zip";
- $pathdir='../../bsmu.akson.by/';
+ $name="../../../_archives/".date("d.m.y")." "."comments.akson.by.zip";
+ $pathdir='../../comments.akson.by/';
  $archive_dir="../../../_archives/";
  $len=strlen($pathdir);
  make_archive($pathdir, $name, $zip);

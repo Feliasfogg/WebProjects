@@ -1,4 +1,6 @@
 <?php
+//http://oauth.vk.com/authorize?client_id=4832378&v=5.7&scope=wall,offline,status,photos,groups,offline,video,audio&redirect_uri=http://oauth.vk.com/blank.html&display=page&response_type=token
+//6727f0401cfebd9eb31265a67e4b695121e7b0eb8490ed30fee1f8bb0167af73268fbf72df21a56c45496
 class vk {
 	private $token;
 	private $app_id;
