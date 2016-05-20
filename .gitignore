@@ -41,7 +41,6 @@ design/
 ############
 ## Windows VS
 ############
-Web.config
 *.publishproj
 App_data/
 *.sln
