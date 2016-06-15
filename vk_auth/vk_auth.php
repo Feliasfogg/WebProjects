@@ -1,9 +1,6 @@
 <?
-$email = '375296367752';
-$pass = 'felias4ehonte';
-
-
-/*Авторизация в вконтакте Апрель 2013*/
+$email = 'email';
+$pass = 'pass'
 
 $auth = curl('http://login.vk.com/?act=login&amp;email=' . $login . '&amp;pass=' . $pass);
 if (preg_match('/hash=([a-z0-9]{1,32})/', $auth, $hash)) {
